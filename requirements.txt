@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pandas
+openpyxl
+groq
+pinecone-client
+python-dotenv
+python-multipart
