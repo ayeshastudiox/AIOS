@@ -41,3 +41,25 @@ async def upload_sales_file(file: UploadFile = File(...)):
         "file_path": file_path,
         "message": "File uploaded successfully. Ready for analytics processing."
     }
+
+# Placeholder route for Teammate 1 (Data & Analytics)
+@app.get("/api/analytics/{filename}")
+async def get_analytics(filename: str):
+    file_path = os.path.join(UPLOAD_DIR, filename)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found.")
+    
+    # TODO: Connect to app.services.analytics once feature/analytics branch is merged
+    return {
+        "status": "pending_integration",
+        "message": "Analytics service route ready for feature/analytics merge."
+    }
+
+# Placeholder route for Teammate 2 (AI Engine)
+@app.post("/api/generate-insights")
+async def generate_insights():
+    # TODO: Connect to app.services.ai_service once feature/ai-engine branch is merged
+    return {
+        "status": "pending_integration",
+        "message": "AI service route ready for feature/ai-engine merge."
+    }
