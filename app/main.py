@@ -1,4 +1,6 @@
-from fastapi import FastAPI
+import os
+import shutil
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
@@ -16,10 +18,26 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+UPLOAD_DIR = "data/uploads"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 @app.get("/")
 def read_root():
-    return {"status": "online", "message": "AIOS Backend Engine Running"}
+    return {"message": "AIOS Backend is running smoothly!"}
 
-@app.get("/api/health")
-def health_check():
-    return {"status": "healthy", "database": "connected"}
+@app.post("/api/upload")
+async def upload_sales_file(file: UploadFile = File(...)):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV files are allowed.")
+    
+    file_path = os.path.join(UPLOAD_DIR, file.filename)
+    
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    return {
+        "status": "success",
+        "filename": file.filename,
+        "file_path": file_path,
+        "message": "File uploaded successfully. Ready for analytics processing."
+    }
