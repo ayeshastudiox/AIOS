@@ -1,107 +1,59 @@
 from io import BytesIO
-
 import pandas as pd
 
+# Supported column variations for schema flexibility
+COLUMN_MAPPING = {
+    "date": ["date", "Date"],
+    "product": ["product_name", "product", "Product"],
+    "quantity": ["units_sold", "quantity", "Quantity"],
+    "price": ["unit_price", "price", "Price"],
+    "revenue": ["total_revenue", "revenue", "Revenue"],
+}
 
-REQUIRED_COLUMNS = [
-    "Date",
-    "Product",
-    "Quantity",
-    "Price",
-    "Customer",
-]
-
-
-def validate_sales_columns(df: pd.DataFrame) -> dict:
+def parse_sales_csv(csv_data: bytes) -> dict:
     """
-    Check whether the sales DataFrame contains
-    all columns required by AIOS analytics.
+    Parse sales CSV bytes and return key AIOS sales metrics.
     """
-
-    missing_columns = [
-        column
-        for column in REQUIRED_COLUMNS
-        if column not in df.columns
-    ]
-
-    return {
-        "valid": len(missing_columns) == 0,
-        "missing_columns": missing_columns,
-    }
-def calculate_basic_metrics(df: pd.DataFrame) -> dict:
+    sales_df = pd.read_csv(BytesIO(csv_data))
     
-    """
-    Calculate the basic sales metrics required Sy AIOS.
-    """
+    # Normalize column headers to lowercase for flexible matching
+    lower_cols = {col.lower(): col for col in sales_df.columns}
+    
+    # Map dynamic column names
+    product_col = next((lower_cols[alias] for alias in COLUMN_MAPPING["product"] if alias in lower_cols), None)
+    qty_col = next((lower_cols[alias] for alias in COLUMN_MAPPING["quantity"] if alias in lower_cols), None)
+    price_col = next((lower_cols[alias] for alias in COLUMN_MAPPING["price"] if alias in lower_cols), None)
+    rev_col = next((lower_cols[alias] for alias in COLUMN_MAPPING["revenue"] if alias in lower_cols), None)
 
-    validation = validate_sales_columns(df)
+    # Validate essential columns exist
+    if not (product_col and qty_col and (price_col or rev_col)):
+        raise ValueError("CSV is missing required product, quantity, or price/revenue columns.")
 
-    if not validation["valid"]:
-        raise ValueError(
-            f"Missing required columns: {validation['missing_columns']}"
-        )
+    # Convert numeric fields
+    sales_df[qty_col] = pd.to_numeric(sales_df[qty_col], errors="coerce").fillna(0)
+    
+    if rev_col:
+        sales_df[rev_col] = pd.to_numeric(sales_df[rev_col], errors="coerce").fillna(0)
+    else:
+        sales_df[price_col] = pd.to_numeric(sales_df[price_col], errors="coerce").fillna(0)
+        sales_df["total_revenue"] = sales_df[qty_col] * sales_df[price_col]
+        rev_col = "total_revenue"
 
-    sales_df = df.copy()
-
-    sales_df["Revenue"] = (
-        sales_df["Quantity"] * sales_df["Price"]
-    )
-
-    total_revenue = float(sales_df["Revenue"].sum())
-    total_units_sold = int(sales_df["Quantity"].sum())
+    # Calculate KPIs
+    total_revenue = float(sales_df[rev_col].sum())
+    total_units_sold = int(sales_df[qty_col].sum())
     total_transactions = int(len(sales_df))
+    avg_order_value = round(total_revenue / total_transactions, 2) if total_transactions > 0 else 0.0
 
-    average_order_value = (
-        total_revenue / total_transactions
-        if total_transactions > 0
-        else 0.0
-    )
+    product_units = sales_df.groupby(product_col)[qty_col].sum()
+    best_selling = str(product_units.idxmax()) if not product_units.empty else None
+    worst_selling = str(product_units.idxmin()) if not product_units.empty else None
 
     return {
         "total_revenue": total_revenue,
         "total_units_sold": total_units_sold,
         "total_transactions": total_transactions,
-        "average_order_value": average_order_value,
+        "average_order_value": avg_order_value,
+        "best_selling_product": best_selling,
+        "worst_selling_product": worst_selling,
     }
-def parse_sales_csv(csv_data: bytes) -> dict:
-    """
-    Parse sales CSV bytes and return key AIOS sales metrics.
-    """
-
-    sales_df = pd.read_csv(BytesIO(csv_data))
-
-    validation = validate_sales_columns(sales_df)
-
-    if not validation["valid"]:
-        raise ValueError(
-            f"Missing required columns: {validation['missing_columns']}"
-        )
-
-    sales_df["Quantity"] = pd.to_numeric(
-        sales_df["Quantity"],
-        errors="raise",
-    )
-
-    sales_df["Price"] = pd.to_numeric(
-        sales_df["Price"],
-        errors="raise",
-    )
-
-    metrics = calculate_basic_metrics(sales_df)
-
-    if sales_df.empty:
-        metrics["best_selling_product"] = None
-        metrics["worst_selling_product"] = None
-        return metrics
-
-    product_units = (
-        sales_df.groupby("Product")["Quantity"]
-        .sum()
-    )
-
-    metrics["best_selling_product"] = str(product_units.idxmax())
-    metrics["worst_selling_product"] = str(product_units.idxmin())
-
-    return metrics
-
-
