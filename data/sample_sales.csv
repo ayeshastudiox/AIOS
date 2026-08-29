@@ -1,0 +1,11 @@
+transaction_id,date,product_name,category,units_sold,unit_price,total_revenue
+TXN-1001,2026-08-01,Wireless Ergonomic Mouse,Electronics,12,25.00,300.00
+TXN-1002,2026-08-01,Mechanical RGB Keyboard,Electronics,5,80.00,400.00
+TXN-1003,2026-08-02,USB-C Docking Station,Electronics,3,120.00,360.00
+TXN-1004,2026-08-02,Standing Desk Converter,Furniture,2,150.00,300.00
+TXN-1005,2026-08-03,Ergonomic Office Chair,Furniture,4,200.00,800.00
+TXN-1006,2026-08-03,Wireless Ergonomic Mouse,Electronics,8,25.00,200.00
+TXN-1007,2026-08-04,27-inch 4K Monitor,Electronics,1,350.00,350.00
+TXN-1008,2026-08-04,Noise-Canceling Headset,Electronics,6,90.00,540.00
+TXN-1009,2026-08-05,Mechanical RGB Keyboard,Electronics,4,80.00,320.00
+TXN-1010,2026-08-05,Cable Management Kit,Accessories,15,10.00,150.00
