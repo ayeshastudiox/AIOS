@@ -63,3 +63,21 @@ async def generate_insights():
         "status": "pending_integration",
         "message": "AI service route ready for feature/ai-engine merge."
     }
+@app.delete("/api/clear-uploads")
+async def clear_uploads():
+    if not os.path.exists(UPLOAD_DIR):
+        return {"status": "success", "message": "Upload directory is already empty."}
+    
+    deleted_files = []
+    for filename in os.listdir(UPLOAD_DIR):
+        file_path = os.path.join(UPLOAD_DIR, filename)
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            deleted_files.append(filename)
+            
+    return {
+        "status": "success",
+        "deleted_files_count": len(deleted_files),
+        "deleted_files": deleted_files,
+        "message": "Upload directory cleared successfully."
+    }
