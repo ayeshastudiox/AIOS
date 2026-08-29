@@ -92,6 +92,7 @@ def parse_sales_csv(csv_data: bytes) -> dict:
     if sales_df.empty:
         metrics["best_selling_product"] = None
         metrics["worst_selling_product"] = None
+        metrics["product_revenue"] = {}
         return metrics
 
     product_units = (
@@ -99,9 +100,25 @@ def parse_sales_csv(csv_data: bytes) -> dict:
         .sum()
     )
 
-    metrics["best_selling_product"] = str(product_units.idxmax())
-    metrics["worst_selling_product"] = str(product_units.idxmin())
+    metrics["best_selling_product"] = str(
+        product_units.idxmax()
+    )
+
+    metrics["worst_selling_product"] = str(
+        product_units.idxmin()
+    )
+
+    product_revenue = (
+        sales_df.assign(
+            Revenue=sales_df["Quantity"] * sales_df["Price"]
+        )
+        .groupby("Product")["Revenue"]
+        .sum()
+    )
+
+    metrics["product_revenue"] = {
+        str(product): float(revenue)
+        for product, revenue in product_revenue.items()
+    }
 
     return metrics
-
-
