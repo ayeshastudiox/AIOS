@@ -2,6 +2,7 @@ import os
 import shutil
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from app.routes import ai_routes
 
 app = FastAPI(
     title="AIOS API",
@@ -20,6 +21,9 @@ app.add_middleware(
 
 UPLOAD_DIR = "data/uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+# Register AI Engine Router
+app.include_router(ai_routes.router)
 
 @app.get("/")
 def read_root():
