@@ -97,9 +97,13 @@ generateAiBtn.addEventListener("click", async () => {
                     <p>${typeof insights.insights === 'object' ? JSON.stringify(insights.insights) : insights.insights}</p>
                 </div>
                 <div>
-                    <strong style="color: #00ff88;">Recommendations:</strong>
-                    <p>${typeof insights.recommendations === 'object' ? JSON.stringify(insights.recommendations) : insights.recommendations}</p>
-                </div>
+    <strong style="color: #00ff88;">Recommendations:</strong>
+    <ol style="margin-top: 8px; padding-left: 25px;">
+        ${Array.isArray(insights.recommendations)
+            ? insights.recommendations.map(rec => `<li style="padding-left: 5px;">${rec}</li>`).join('')
+            : `<li style="padding-left: 5px;">${insights.recommendations}</li>`}
+    </ol>
+</div>
             `;
         } else {
             aiOutput.innerHTML = `<p style="color: #ff4d4d;">Failed to generate AI insights.</p>`;
