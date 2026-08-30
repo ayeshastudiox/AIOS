@@ -3,100 +3,227 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AIOS — Business Operating System</title>
-    <link rel="stylesheet" href="css/style.css">
+    <title>AIOS - Executive Command Dashboard</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Navigation -->
+        <!-- Navigation Sidebar -->
         <aside class="sidebar">
-            <div class="logo-area">
-                <i class="fa-solid fa-atom logo-icon"></i>
-                <h2>AIOS</h2>
+            <div class="sidebar-top">
+                <div class="logo-area">
+                    <div class="logo-icon-wrapper"><i class="fa-solid fa-atom logo-icon"></i></div>
+                    <div class="logo-text">
+                        <h2>AIOS</h2>
+                        <div class="sub-logo">AI Business OS v1.0</div>
+                    </div>
+                </div>
+                <nav class="nav-menu">
+                    <div class="nav-section-title">COMMAND CENTER</div>
+                    <a href="#" class="nav-item active" data-view="dashboardView"><i class="fa-solid fa-chart-line"></i><span>Dashboard</span></a>
+                    <a href="#" class="nav-item" data-view="terminalView"><i class="fa-solid fa-cloud-arrow-up"></i><span>Data Terminal</span></a>
+                    <a href="#" class="nav-item" data-view="analyticsView"><i class="fa-solid fa-chart-pie"></i><span>Analytics Engine</span></a>
+                    <a href="#" class="nav-item" data-view="insightsView"><i class="fa-solid fa-brain"></i><span>AI Insights</span></a>
+                    <div class="nav-section-title">SYSTEM CONTROL</div>
+                    <a href="#" class="nav-item" data-view="reportsView"><i class="fa-solid fa-file-invoice-dollar"></i><span>Reports & Export</span></a>
+                </nav>
             </div>
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Executive Dashboard</a>
-                <a href="#" class="nav-item"><i class="fa-solid fa-brain"></i> AI Insights Engine</a>
-                <a href="#" class="nav-item"><i class="fa-solid fa-file-csv"></i> Data Management</a>
-            </nav>
+            <div class="sidebar-footer">
+                <div class="system-status-box">
+                    <div class="status-pulse"></div>
+                    <div class="status-info">
+                        <span class="status-label">GROQ CORE</span>
+                        <span class="status-val">OPERATIONAL</span>
+                    </div>
+                </div>
+            </div>
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- Main Workspace -->
         <main class="main-content">
-            <!-- Header Top Bar -->
             <header class="top-bar">
-                <div class="search-box">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" placeholder="Search operational metrics...">
+                <div>
+                    <h1 class="page-title" id="pageTitle">Executive Command Dashboard</h1>
+                    <p class="page-subtitle" id="pageSubtitle">Real-Time Business Intelligence & Algorithmic Strategy</p>
                 </div>
-                <div class="user-profile">
-                    <span class="status-indicator"></span>
-                    <span class="user-name">Live Backend Active</span>
+                <div class="header-actions">
+                    <div class="search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" placeholder="Search operational metrics...">
+                    </div>
+                    <div class="system-badge"><i class="fa-solid fa-shield-halved"></i> AI SYSTEM: ONLINE</div>
+                    <button class="btn-cyan-outline" id="quickExportBtn"><i class="fa-solid fa-download"></i> Quick Export</button>
                 </div>
             </header>
 
-            <!-- Dashboard Content Grid -->
-            <div class="dashboard-grid">
-                
-                <!-- Upload Section (Control Panel) -->
-                <div class="card upload-card">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-cloud-arrow-up"></i> Data Upload Terminal</h3>
-                    </div>
-                    <div class="upload-dropzone" id="dropzone">
-                        <i class="fa-solid fa-file-csv upload-icon"></i>
-                        <p>Drag and drop your sales CSV here, or <label for="csvFileInput" class="file-label">browse file</label></p>
-                        <input type="file" id="csvFileInput" accept=".csv" hidden>
-                        <span id="selectedFileName">No file selected</span>
-                    </div>
-                    <button id="uploadBtn" class="btn-primary">
-                        <i class="fa-solid fa-rocket"></i> Upload & Process Pipeline
-                    </button>
-                    <div id="uploadStatus" class="status-msg"></div>
-                </div>
+            <!-- VIEW 1: MAIN DASHBOARD -->
+            <div class="view-panel active" id="dashboardView">
+                <div class="dashboard-grid">
+                    <section class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">TOTAL REVENUE</span><i class="fa-solid fa-wallet kpi-icon"></i></div>
+                            <div class="kpi-value" id="kpiRevenue">$0.00</div>
+                            <div class="kpi-meta"><span class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> +12.4%</span><span class="kpi-subtext">vs last cycle</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">UNITS SOLD</span><i class="fa-solid fa-cubes kpi-icon"></i></div>
+                            <div class="kpi-value" id="kpiUnits">0</div>
+                            <div class="kpi-meta"><span class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> +8.2%</span><span class="kpi-subtext">inventory moved</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">TOTAL TRANSACTIONS</span><i class="fa-solid fa-receipt kpi-icon"></i></div>
+                            <div class="kpi-value" id="kpiTransactions">0</div>
+                            <div class="kpi-meta"><span class="kpi-trend neutral"><i class="fa-solid fa-minus"></i> Stable</span><span class="kpi-subtext">orders processed</span></div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-header"><span class="kpi-title">AVG ORDER VALUE</span><i class="fa-solid fa-chart-line kpi-icon"></i></div>
+                            <div class="kpi-value" id="kpiAOV">$0.00</div>
+                            <div class="kpi-meta"><span class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> +5.1%</span><span class="kpi-subtext">efficiency factor</span></div>
+                        </div>
+                    </section>
 
-                <!-- Executive Summary Cards -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-title">Total Revenue</div>
-                        <div class="kpi-value" id="kpiRevenue">$0.00</div>
-                        <div class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> Live CSV Sync</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Units Sold</div>
-                        <div class="kpi-value" id="kpiUnits">0</div>
-                        <div class="kpi-trend positive"><i class="fa-solid fa-box"></i> Inventory Moved</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Total Transactions</div>
-                        <div class="kpi-value" id="kpiTransactions">0</div>
-                        <div class="kpi-trend neutral"><i class="fa-solid fa-receipt"></i> Orders Processed</div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-title">Avg Order Value</div>
-                        <div class="kpi-value" id="kpiAOV">$0.00</div>
-                        <div class="kpi-trend positive"><i class="fa-solid fa-chart-line"></i> Efficiency</div>
-                    </div>
-                </div>
+                    <section class="analytics-ai-row">
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title"><i class="fa-solid fa-chart-area panel-icon"></i> Revenue Trajectory & Sales Statistics</div>
+                                <span class="tag-badge">REAL-TIME DATA</span>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="revenueChart"></canvas>
+                            </div>
+                        </div>
 
-                <!-- AI Insights Panel -->
-                <div class="card ai-card">
-                    <div class="card-header">
-                        <h3><i class="fa-solid fa-brain"></i> Groq AI Strategic Analysis</h3>
-                        <button id="generateAiBtn" class="btn-secondary" disabled>
-                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Insights
-                        </button>
-                    </div>
-                    <div id="aiOutput" class="ai-output-box">
-                        <p class="placeholder-text">Upload a sales CSV and click "Generate AI Insights" to trigger Groq LLM analytics.</p>
-                    </div>
+                        <div class="panel">
+                            <div class="panel-header">
+                                <div class="panel-title"><i class="fa-solid fa-robot panel-icon glowing-icon"></i> AI Strategic Command</div>
+                                <button class="btn-cyber-primary" id="generateAiBtn" disabled><i class="fa-solid fa-wand-magic-sparkles"></i> Synthesize Strategy</button>
+                            </div>
+                            <div class="ai-console-box" id="aiOutput">
+                                <div class="ai-placeholder">
+                                    <i class="fa-solid fa-robot placeholder-icon"></i>
+                                    <p>Upload operational sales data in the Data Terminal to trigger Groq LLM synthesis.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-
             </div>
-        </main>
-    </div>
 
-    <script src="js/app.js"></script>
+            <!-- VIEW 2: DATA TERMINAL -->
+            <div class="view-panel" id="terminalView">
+                <div class="bottom-grid" style="grid-template-columns: 1fr 1fr;">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fa-solid fa-terminal panel-icon"></i> Data Ingestion Terminal</div>
+                        </div>
+                        <div class="upload-dropzone" id="dropzone">
+                            <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                            <div class="primary-msg">Drag & Drop CSV payload or <label for="csvFileInput" class="file-browse-link">browse</label></div>
+                            <div class="secondary-msg">Supports standard comma-separated sales formats</div>
+                            <input type="file" id="csvFileInput" accept=".csv" hidden>
+                            <div class="selected-file-badge" id="selectedFileName">No file target selected</div>
+                        </div>
+                        <button class="btn-cyber-primary" id="uploadBtn"><i class="fa-solid fa-bolt"></i> Execute Data Ingestion</button>
+                        <div class="console-status-msg" id="uploadStatus"></div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><i class="fa-solid fa-table-list panel-icon"></i> Data Ingestion Summary</div>
+                            <button class="btn-danger-sm" id="clearUploadsBtn"><i class="fa-solid fa-trash"></i> Clear Terminal</button>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="cyber-table">
+                                <thead>
+                                    <tr>
+                                        <th>Metric Identifier</th>
+                                        <th>Status / Target</th>
+                                        <th>System Flag</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Highest Revenue Product</td>
+                                        <td class="cyan-text" id="tableTopProduct">—</td>
+                                        <td><span class="tag-badge">TOP PERFORMER</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Lowest Volume Product</td>
+                                        <td class="muted-text" id="tableBottomProduct">—</td>
+                                        <td><span class="tag-badge danger-badge">LOW VOLUME</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pipeline Validation</td>
+                                        <td id="tableIngestStatus">Awaiting File...</td>
+                                        <td><span class="status-pill status-neutral" id="tableStatusPill">IDLE</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: ANALYTICS ENGINE -->
+<div class="view-panel" id="analyticsView">
+    <div class="analytics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <!-- Category Performance Chart -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class="fa-solid fa-chart-column panel-icon"></i> Revenue by Product Category</div>
+                <span class="tag-badge">BREAKDOWN</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Payment Method Distribution Chart -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title"><i class="fa-solid fa-pie-chart panel-icon"></i> Payment Channel Distribution</div>
+                <span class="tag-badge">SHARE</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="paymentChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+            <!-- VIEW 4: AI INSIGHTS -->
+            <div class="view-panel" id="insightsView">
+                <div class="panel">
+                    <div class="panel-header">
+                        <div class="panel-title"><i class="fa-solid fa-brain panel-icon"></i> Full AI Insight Synthesis</div>
+                    </div>
+                    <div class="ai-console-box" id="insightsFullConsole" style="height: 400px;">
+                        <div class="ai-placeholder">
+                            <i class="fa-solid fa-brain placeholder-icon"></i>
+                            <p>No active insights generated. Run "Synthesize Strategy" on the Dashboard panel.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 5: REPORTS & EXPORT -->
+<div class="view-panel" id="reportsView">
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar panel-icon"></i> Export Data Center</div>
+        </div>
+        <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; max-width: 400px;">
+            <p style="font-size: 13px; color: var(--text-muted);">
+                Generate and download an aggregated summary report of the currently ingested metrics in standard CSV format.
+            </p>
+            <button class="btn-cyan-outline" id="downloadReportBtn">
+                <i class="fa-solid fa-file-csv"></i> Export Summary Report (.csv)
+            </button>
+        </div>
+    </div>
+</div>
+    <script src="./js/app.js"></script>
 </body>
 </html>

@@ -1,110 +1,406 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
+document.addEventListener('DOMContentLoaded', () => {
+    let revenueChart = null;
+    let categoryChart = null;
+    let paymentChart = null;
+    let currentData = null;
 
-let currentUploadedFilename = "";
+    // Inject Custom Dark Theme Scrollbar Styles Dynamically
+    const customScrollbarStyle = document.createElement('style');
+    customScrollbarStyle.innerHTML = `
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    `;
+    document.head.appendChild(customScrollbarStyle);
 
-const fileInput = document.getElementById("csvFileInput");
-const selectedFileName = document.getElementById("selectedFileName");
-const uploadBtn = document.getElementById("uploadBtn");
-const uploadStatus = document.getElementById("uploadStatus");
-const generateAiBtn = document.getElementById("generateAiBtn");
-const aiOutput = document.getElementById("aiOutput");
+    // View Titles Configuration
+    const viewMeta = {
+        dashboardView: { title: 'Executive Command Dashboard', subtitle: 'Real-Time Business Intelligence & Algorithmic Strategy' },
+        terminalView: { title: 'Data Ingestion Terminal', subtitle: 'Upload and manage operational payload batches' },
+        analyticsView: { title: 'Analytics Engine', subtitle: 'Detailed breakdowns and multi-variable operations' },
+        insightsView: { title: 'AI Strategic Insights', subtitle: 'Groq LLM-synthesized recommendations and insights' },
+        reportsView: { title: 'Reports & Export', subtitle: 'Download validated metrics and aggregated summaries' }
+    };
 
-// Handle File Selection
-fileInput.addEventListener("change", () => {
-    if (fileInput.files.length > 0) {
-        selectedFileName.textContent = fileInput.files[0].name;
+    // Navigation View Switcher
+    const navItems = document.querySelectorAll('.nav-item');
+    const viewPanels = document.querySelectorAll('.view-panel');
+    const pageTitle = document.getElementById('pageTitle');
+    const pageSubtitle = document.getElementById('pageSubtitle');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetViewId = item.getAttribute('data-view');
+            if (!targetViewId) return;
+
+            navItems.forEach(nav => nav.classList.remove('active'));
+            viewPanels.forEach(panel => panel.classList.remove('active'));
+
+            item.classList.add('active');
+            const targetPanel = document.getElementById(targetViewId);
+            if (targetPanel) targetPanel.classList.add('active');
+
+            if (viewMeta[targetViewId]) {
+                pageTitle.textContent = viewMeta[targetViewId].title;
+                pageSubtitle.textContent = viewMeta[targetViewId].subtitle;
+            }
+        });
+    });
+
+    // Elements
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('csvFileInput');
+    const selectedFileName = document.getElementById('selectedFileName');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const generateAiBtn = document.getElementById('generateAiBtn');
+    const clearUploadsBtn = document.getElementById('clearUploadsBtn');
+    const downloadReportBtn = document.getElementById('downloadReportBtn');
+    const quickExportBtn = document.getElementById('quickExportBtn');
+
+    const kpiRevenue = document.getElementById('kpiRevenue');
+    const kpiUnits = document.getElementById('kpiUnits');
+    const kpiTransactions = document.getElementById('kpiTransactions');
+    const kpiAOV = document.getElementById('kpiAOV');
+
+    const tableTopProduct = document.getElementById('tableTopProduct');
+    const tableBottomProduct = document.getElementById('tableBottomProduct');
+    const tableIngestStatus = document.getElementById('tableIngestStatus');
+    const tableStatusPill = document.getElementById('tableStatusPill');
+    const aiOutput = document.getElementById('aiOutput');
+    const insightsFullConsole = document.getElementById('insightsFullConsole');
+
+    // Main Revenue Line Chart Initialization
+    function initChart(labels = [], datasetData = []) {
+        const canvas = document.getElementById('revenueChart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        
+        const tealGradient = ctx.createLinearGradient(0, 0, 0, 250);
+        tealGradient.addColorStop(0, 'rgba(6, 182, 212, 0.45)');
+        tealGradient.addColorStop(0.5, 'rgba(10, 185, 129, 0.15)');
+        tealGradient.addColorStop(1, 'rgba(10, 13, 20, 0.0)');
+
+        const defaultLabels = ['Cycle 1', 'Cycle 2', 'Cycle 3', 'Cycle 4', 'Cycle 5'];
+        const defaultData = [12, 19, 14, 25, 22];
+
+        if (revenueChart) {
+            revenueChart.destroy();
+        }
+
+        revenueChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels.length ? labels : defaultLabels,
+                datasets: [{
+                    label: 'Revenue Dynamics',
+                    data: datasetData.length ? datasetData : defaultData,
+                    borderColor: '#06b6d4',
+                    borderWidth: 3,
+                    pointBackgroundColor: '#10b981',
+                    pointBorderColor: '#0a0d14',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    fill: true,
+                    backgroundColor: tealGradient,
+                    tension: 0.45
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.03)', drawBorder: false },
+                        ticks: { color: '#64748b', font: { size: 10 } }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.03)', drawBorder: false },
+                        ticks: { color: '#64748b', font: { size: 10 } }
+                    }
+                }
+            }
+        });
     }
-});
 
-// 1. Trigger File Upload & Analytics
-uploadBtn.addEventListener("click", async () => {
-    if (!fileInput.files.length) {
-        uploadStatus.style.color = "#ff4d4d";
-        uploadStatus.textContent = "Please select a CSV file first.";
-        return;
+    // Analytics Engine Charts (Category Bar & Payment Method Doughnut)
+    function initAnalyticsCharts(categoryData = {}, paymentData = {}) {
+        const catCanvas = document.getElementById('categoryChart');
+        if (catCanvas) {
+            const ctxCat = catCanvas.getContext('2d');
+            if (categoryChart) categoryChart.destroy();
+
+            const defaultCatLabels = ['Electronics', 'SaaS Subscriptions', 'Hardware', 'Services'];
+            const defaultCatValues = [4500, 3200, 2100, 1800];
+
+            categoryChart = new Chart(ctxCat, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categoryData).length ? Object.keys(categoryData) : defaultCatLabels,
+                    datasets: [{
+                        label: 'Revenue ($)',
+                        data: Object.values(categoryData).length ? Object.values(categoryData) : defaultCatValues,
+                        backgroundColor: 'rgba(6, 182, 212, 0.4)',
+                        borderColor: '#06b6d4',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
+                        y: { grid: { color: 'rgba(255, 255, 255, 0.03)' }, ticks: { color: '#64748b', font: { size: 10 } } }
+                    }
+                }
+            });
+        }
+
+        const payCanvas = document.getElementById('paymentChart');
+        if (payCanvas) {
+            const ctxPay = payCanvas.getContext('2d');
+            if (paymentChart) paymentChart.destroy();
+
+            const defaultPayLabels = ['Credit Card', 'Stripe / Online', 'Bank Transfer'];
+            const defaultPayValues = [55, 30, 15];
+
+            paymentChart = new Chart(ctxPay, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(paymentData).length ? Object.keys(paymentData) : defaultPayLabels,
+                    datasets: [{
+                        data: Object.values(paymentData).length ? Object.values(paymentData) : defaultPayValues,
+                        backgroundColor: ['#06b6d4', '#10b981', '#f43f5e'],
+                        borderColor: '#0a0d14',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#f1f5f9', font: { size: 11 }, padding: 14 }
+                        }
+                    }
+                }
+            });
+        }
     }
 
-    const file = fileInput.files[0];
-    const formData = new FormData();
-    formData.append("file", file);
+    initChart();
+    initAnalyticsCharts();
 
-    uploadStatus.style.color = "#00f0ff";
-    uploadStatus.textContent = "Uploading file to backend...";
-
-    try {
-        // Post File to /api/upload
-        const response = await fetch(`${API_BASE_URL}/api/upload`, {
-            method: "POST",
-            body: formData
+    // Drag and Drop Logic
+    if (dropzone) {
+        ['dragenter', 'dragover'].forEach(name => {
+            dropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                dropzone.classList.add('drag-over');
+            });
         });
 
-        const data = await response.json();
+        ['dragleave', 'drop'].forEach(name => {
+            dropzone.addEventListener(name, (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('drag-over');
+            });
+        });
 
-        if (response.ok) {
-            currentUploadedFilename = data.filename;
-            uploadStatus.style.color = "#00ff88";
-            uploadStatus.textContent = "File uploaded successfully! Fetching analytics...";
+        dropzone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                selectedFileName.textContent = `Selected: ${files[0].name}`;
+            }
+        });
+    }
+
+    if (fileInput) {
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) {
+                selectedFileName.textContent = `Selected: ${fileInput.files[0].name}`;
+            }
+        });
+    }
+
+    // Data Ingestion Execution Request
+    if (uploadBtn) {
+        uploadBtn.addEventListener('click', async () => {
+            if (!fileInput.files.length) {
+                showStatus('Please select or drop a CSV file first.', '#f59e0b');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            showStatus('Processing payload execution...', '#06b6d4');
+
+            try {
+                const response = await fetch('/upload', { method: 'POST', body: formData });
+                if (!response.ok) throw new Error('Ingestion failed');
+
+                const data = await response.json();
+                currentData = data;
+
+                kpiRevenue.textContent = `$${(data.total_revenue || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                kpiUnits.textContent = (data.total_units || 0).toLocaleString();
+                kpiTransactions.textContent = (data.total_transactions || 0).toLocaleString();
+                
+                const aov = data.total_transactions ? (data.total_revenue / data.total_transactions) : 0;
+                kpiAOV.textContent = `$${aov.toFixed(2)}`;
+
+                tableTopProduct.textContent = data.top_product || 'N/A';
+                tableBottomProduct.textContent = data.bottom_product || 'N/A';
+                tableIngestStatus.textContent = 'Active Dataset Loaded';
+                tableStatusPill.textContent = 'VERIFIED';
+                tableStatusPill.className = 'status-pill status-active';
+
+                if (data.chart_labels && data.chart_values) {
+                    initChart(data.chart_labels, data.chart_values);
+                }
+
+                initAnalyticsCharts(data.category_breakdown || {}, data.payment_breakdown || {});
+
+                generateAiBtn.disabled = false;
+                showStatus('Data successfully ingested & verified.', '#10b981');
+
+            } catch (err) {
+                showStatus(`Error: ${err.message}`, '#f43f5e');
+            }
+        });
+    }
+
+    // Groq LLM Strategy Synthesis Execution Request with Clean Formatting Parser
+    if (generateAiBtn) {
+        generateAiBtn.addEventListener('click', async () => {
+            if (!currentData) return;
+
+            const loadingHTML = `<div class="ai-placeholder"><i class="fa-solid fa-spinner fa-spin placeholder-icon"></i><p>Synthesizing insights...</p></div>`;
+            aiOutput.innerHTML = loadingHTML;
+            if (insightsFullConsole) insightsFullConsole.innerHTML = loadingHTML;
+
+            try {
+                const response = await fetch('/generate-insights', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(currentData)
+                });
+
+                if (!response.ok) throw new Error('AI synthesis failed');
+
+                const result = await response.json();
+                const rawText = result.insights || '';
+
+                // Clean and structure bullet points nicely into separate spaced blocks
+                const formattedHtml = rawText
+                    .split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.length > 0)
+                    .map(line => {
+                        let cleanLine = line.replace(/^([-*]|\d+\.)\s*/, '');
+                        cleanLine = cleanLine.replace(/\*\*(.*?)\*\*/g, '<strong style="color:var(--accent-cyan);">$1</strong>');
+                        return `<div style="margin-bottom: 14px; line-height: 1.6; padding-left: 4px;">• ${cleanLine}</div>`;
+                    })
+                    .join('');
+
+                const finalOutput = `<div style="color: var(--text-primary); font-size: 13px;">${formattedHtml}</div>`;
+                aiOutput.innerHTML = finalOutput;
+                if (insightsFullConsole) insightsFullConsole.innerHTML = finalOutput;
+
+            } catch (err) {
+                const errorMsg = `<span style="color: var(--accent-pink);">AI Error: ${err.message}</span>`;
+                aiOutput.innerHTML = errorMsg;
+                if (insightsFullConsole) insightsFullConsole.innerHTML = errorMsg;
+            }
+        });
+    }
+
+    // Terminal Clear Logic
+    if (clearUploadsBtn) {
+        clearUploadsBtn.addEventListener('click', () => {
+            fileInput.value = '';
+            currentData = null;
+            selectedFileName.textContent = 'No file target selected';
             
-            // Enable AI button and load calculated analytics
-            generateAiBtn.disabled = false;
-            fetchAnalytics(currentUploadedFilename);
-        } else {
-            uploadStatus.style.color = "#ff4d4d";
-            uploadStatus.textContent = data.detail || "Upload failed.";
-        }
-    } catch (err) {
-        uploadStatus.style.color = "#ff4d4d";
-        uploadStatus.textContent = "Error connecting to backend server.";
-    }
-});
+            kpiRevenue.textContent = '$0.00';
+            kpiUnits.textContent = '0';
+            kpiTransactions.textContent = '0';
+            kpiAOV.textContent = '$0.00';
 
-// 2. Fetch Analytics Metrics
-async function fetchAnalytics(filename) {
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/analytics/${filename}`);
-        const result = await response.json();
+            tableTopProduct.textContent = '—';
+            tableBottomProduct.textContent = '—';
+            tableIngestStatus.textContent = 'Awaiting File...';
+            tableStatusPill.textContent = 'IDLE';
+            tableStatusPill.className = 'status-pill status-neutral';
 
-        if (response.ok) {
-            const data = result.data;
-            document.getElementById("kpiRevenue").textContent = `$${data.total_revenue.toLocaleString()}`;
-            document.getElementById("kpiUnits").textContent = data.total_units_sold.toLocaleString();
-            document.getElementById("kpiTransactions").textContent = data.total_transactions.toLocaleString();
-            document.getElementById("kpiAOV").textContent = `$${data.average_order_value}`;
-        }
-    } catch (err) {
-        console.error("Failed to load metrics:", err);
-    }
-}
-
-// 3. Trigger Groq AI Insights
-generateAiBtn.addEventListener("click", async () => {
-    if (!currentUploadedFilename) return;
-
-    aiOutput.innerHTML = `<p style="color: #00f0ff;"><i class="fa-solid fa-spinner fa-spin"></i> Groq AI is generating strategic insights...</p>`;
-
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/generate-insights?filename=${currentUploadedFilename}`, {
-            method: "POST"
+            generateAiBtn.disabled = true;
+            initChart();
+            initAnalyticsCharts();
+            showStatus('Terminal cleared.', '#64748b');
         });
+    }
 
-        const result = await response.json();
-
-        if (response.ok) {
-            const insights = result.insights;
-            aiOutput.innerHTML = `
-                <div style="margin-bottom: 12px;">
-                    <strong style="color: #00f0ff;">Key Insights:</strong>
-                    <p>${typeof insights.insights === 'object' ? JSON.stringify(insights.insights) : insights.insights}</p>
-                </div>
-                <div>
-                    <strong style="color: #00ff88;">Recommendations:</strong>
-                    <p>${typeof insights.recommendations === 'object' ? JSON.stringify(insights.recommendations) : insights.recommendations}</p>
-                </div>
-            `;
-        } else {
-            aiOutput.innerHTML = `<p style="color: #ff4d4d;">Failed to generate AI insights.</p>`;
+    // CSV Metric Export Handler
+    function exportMetricsCSV() {
+        if (!currentData) {
+            showStatus('No active dataset to export. Ingest a file first.', '#f59e0b');
+            alert('No data available to export. Please upload a CSV file first.');
+            return;
         }
-    } catch (err) {
-        aiOutput.innerHTML = `<p style="color: #ff4d4d;">Backend network error.</p>`;
+
+        const aov = currentData.total_transactions ? (currentData.total_revenue / currentData.total_transactions) : 0;
+
+        const csvRows = [
+            ['Metric', 'Value'],
+            ['Total Revenue ($)', currentData.total_revenue || 0],
+            ['Total Units Sold', currentData.total_units || 0],
+            ['Total Transactions', currentData.total_transactions || 0],
+            ['Average Order Value ($)', aov.toFixed(2)],
+            ['Top Performing Product', `"${currentData.top_product || 'N/A'}"`],
+            ['Lowest Volume Product', `"${currentData.bottom_product || 'N/A'}"`]
+        ];
+
+        const csvContent = 'data:text/csv;charset=utf-8,' + csvRows.map(e => e.join(',')).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        
+        const link = document.createElement('a');
+        link.setAttribute('href', encodedUri);
+        link.setAttribute('download', `executive_report_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    if (downloadReportBtn) {
+        downloadReportBtn.addEventListener('click', exportMetricsCSV);
+    }
+
+    if (quickExportBtn) {
+        quickExportBtn.addEventListener('click', exportMetricsCSV);
+    }
+
+    function showStatus(msg, color) {
+        if (uploadStatus) {
+            uploadStatus.textContent = msg;
+            uploadStatus.style.color = color;
+        }
     }
 });
