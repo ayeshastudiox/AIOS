@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         terminalView: { title: 'Data Ingestion Terminal', subtitle: 'Upload and manage operational payload batches' },
         analyticsView: { title: 'Analytics Engine', subtitle: 'Detailed breakdowns and multi-variable operations' },
         insightsView: { title: 'AI Strategic Insights', subtitle: 'Groq LLM-synthesized recommendations and insights' },
+        meetingSummaryView: { title: 'Meeting Summaries', subtitle: 'Groq AI-powered meeting decisions, actions, and deadlines' },
         reportsView: { title: 'Reports & Export', subtitle: 'Download validated metrics and aggregated summaries' }
     };
 
@@ -331,6 +332,79 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+  // Meeting Summaries
+const meetingTranscript = document.getElementById('meetingTranscript');
+const generateMeetingSummaryBtn = document.getElementById('generateMeetingSummaryBtn');
+const meetingSummaryOutput = document.getElementById('meetingSummaryOutput');
+
+if (generateMeetingSummaryBtn) {
+    generateMeetingSummaryBtn.addEventListener('click', async () => {
+        const transcript = meetingTranscript.value.trim();
+
+        if (!transcript) {
+            meetingSummaryOutput.innerHTML = `
+                <div style="color: var(--accent-pink); padding: 16px;">
+                    Please enter a meeting transcript.
+                </div>
+            `;
+            return;
+        }
+
+        meetingSummaryOutput.innerHTML = `
+            <div class="ai-placeholder">
+                <i class="fa-solid fa-spinner fa-spin placeholder-icon"></i>
+                <p>Generating meeting summary...</p>
+            </div>
+        `;
+
+        generateMeetingSummaryBtn.disabled = true;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/meeting/summarize', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    transcript: transcript
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    result.detail || 'Meeting summary generation failed.'
+                );
+            }
+
+            const summaryText = result.summary || '';
+
+            const formattedSummary = summaryText
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^\s*-\s+(.*)$/gm, '<div style="margin-left: 16px; margin-bottom: 6px;">• $1</div>')
+                .replace(/\n/g, '<br>');
+
+            meetingSummaryOutput.innerHTML = `
+                <div style="
+                    color: var(--text-primary);
+                    font-size: 13px;
+                    line-height: 1.7;
+                    padding: 16px;
+                ">${formattedSummary}</div>
+            `;
+
+        } catch (error) {
+            meetingSummaryOutput.innerHTML = `
+                <div style="color: var(--accent-pink); padding: 16px;">
+                    AI Error: ${error.message}
+                </div>
+            `;
+        } finally {
+            generateMeetingSummaryBtn.disabled = false;
+        }
+    });
+}
         // AI Email Writer
 const emailRecipient = document.getElementById('emailRecipient');
 const emailScenario = document.getElementById('emailScenario');
