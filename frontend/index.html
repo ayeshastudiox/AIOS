@@ -26,6 +26,7 @@
                     <a href="#" class="nav-item" data-view="terminalView"><i class="fa-solid fa-cloud-arrow-up"></i><span>Data Terminal</span></a>
                     <a href="#" class="nav-item" data-view="analyticsView"><i class="fa-solid fa-chart-pie"></i><span>Analytics Engine</span></a>
                     <a href="#" class="nav-item" data-view="insightsView"><i class="fa-solid fa-brain"></i><span>AI Insights</span></a>
+                    <a href="#" class="nav-item" data-view="emailWriterView"><i class="fa-solid fa-envelope"></i><span>AI Email Writer</span></a>
                     <div class="nav-section-title">SYSTEM CONTROL</div>
                     <a href="#" class="nav-item" data-view="reportsView"><i class="fa-solid fa-file-invoice-dollar"></i><span>Reports & Export</span></a>
                 </nav>
@@ -207,19 +208,110 @@
                     </div>
                 </div>
             </div>
+                <!-- VIEW 5: AI EMAIL WRITER -->
+<div class="view-panel" id="emailWriterView">
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fa-solid fa-envelope panel-icon"></i>
+                AI Email Writer
+            </div>
+            <span class="tag-badge">GROQ AI</span>
+        </div>
 
-            <!-- VIEW 5: REPORTS & EXPORT -->
+        <div style="padding: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 16px; max-width: 700px;">
+
+                <div>
+                    <label for="emailRecipient"
+                        style="display: block; margin-bottom: 6px; font-size: 12px; color: var(--text-muted);">
+                        Recipient
+                    </label>
+
+                    <input
+                        type="text"
+                        id="emailRecipient"
+                        placeholder="e.g. HR Manager, ABC Company"
+                        style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary);"
+                    >
+                </div>
+
+                <div>
+                    <label for="emailScenario"
+                        style="display: block; margin-bottom: 6px; font-size: 12px; color: var(--text-muted);">
+                        Scenario
+                    </label>
+
+                    <textarea
+                        id="emailScenario"
+                        rows="5"
+                        placeholder="Describe what the email is about..."
+                        style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); resize: vertical;"
+                    ></textarea>
+                </div>
+
+                <div>
+                    <label for="emailTone"
+                        style="display: block; margin-bottom: 6px; font-size: 12px; color: var(--text-muted);">
+                        Tone
+                    </label>
+
+                    <select
+                        id="emailTone"
+                        style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary);"
+                    >
+                        <option value="professional">Professional</option>
+                        <option value="polite">Polite</option>
+                        <option value="friendly">Friendly</option>
+                        <option value="formal">Formal</option>
+                        <option value="concise">Concise</option>
+                    </select>
+                </div>
+
+                <button
+                    class="btn-cyan-outline"
+                    id="generateEmailBtn"
+                    type="button"
+                >
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Generate Email
+                </button>
+
+                <div
+                    id="emailOutput"
+                    class="ai-console-box"
+                    style="min-height: 250px;"
+                >
+                    <div class="ai-placeholder">
+                        <i class="fa-solid fa-envelope placeholder-icon"></i>
+                        <p>Your generated business email will appear here.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- VIEW 6: REPORTS & EXPORT -->
 <div class="view-panel" id="reportsView">
     <div class="panel">
         <div class="panel-header">
-            <div class="panel-title"><i class="fa-solid fa-file-invoice-dollar panel-icon"></i> Export Data Center</div>
+            <div class="panel-title">
+                <i class="fa-solid fa-file-invoice-dollar panel-icon"></i>
+                Export Data Center
+            </div>
         </div>
+
         <div style="padding: 20px; display: flex; flex-direction: column; gap: 16px; max-width: 400px;">
             <p style="font-size: 13px; color: var(--text-muted);">
                 Generate and download an aggregated summary report of the currently ingested metrics in standard CSV format.
             </p>
+
             <button class="btn-cyan-outline" id="downloadReportBtn">
-                <i class="fa-solid fa-file-csv"></i> Export Summary Report (.csv)
+                <i class="fa-solid fa-file-csv"></i>
+                Export Summary Report (.csv)
             </button>
         </div>
     </div>

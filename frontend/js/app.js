@@ -331,7 +331,79 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+        // AI Email Writer
+const emailRecipient = document.getElementById('emailRecipient');
+const emailScenario = document.getElementById('emailScenario');
+const emailTone = document.getElementById('emailTone');
+const generateEmailBtn = document.getElementById('generateEmailBtn');
+const emailOutput = document.getElementById('emailOutput');
 
+if (generateEmailBtn) {
+    generateEmailBtn.addEventListener('click', async () => {
+        const recipient = emailRecipient.value.trim();
+        const scenario = emailScenario.value.trim();
+        const tone = emailTone.value;
+
+        if (!recipient || !scenario) {
+            emailOutput.innerHTML = `
+                <div style="color: var(--accent-pink); padding: 16px;">
+                    Please enter both the recipient and email scenario.
+                </div>
+            `;
+            return;
+        }
+
+        emailOutput.innerHTML = `
+            <div class="ai-placeholder">
+                <i class="fa-solid fa-spinner fa-spin placeholder-icon"></i>
+                <p>Generating your business email...</p>
+            </div>
+        `;
+
+        generateEmailBtn.disabled = true;
+
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/email/generate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    recipient: recipient,
+                    scenario: scenario,
+                    tone: tone
+                })
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.detail || 'Email generation failed.');
+            }
+
+            const emailText = result.email || '';
+
+            emailOutput.innerHTML = `
+                <div style="
+                    color: var(--text-primary);
+                    font-size: 13px;
+                    line-height: 1.7;
+                    white-space: pre-wrap;
+                    padding: 16px;
+                ">${emailText}</div>
+            `;
+
+        } catch (error) {
+            emailOutput.innerHTML = `
+                <div style="color: var(--accent-pink); padding: 16px;">
+                    AI Error: ${error.message}
+                </div>
+            `;
+        } finally {
+            generateEmailBtn.disabled = false;
+        }
+    });
+}
     // Terminal Clear Logic
     if (clearUploadsBtn) {
         clearUploadsBtn.addEventListener('click', () => {
@@ -397,10 +469,11 @@ document.addEventListener('DOMContentLoaded', () => {
         quickExportBtn.addEventListener('click', exportMetricsCSV);
     }
 
-    function showStatus(msg, color) {
+                function showStatus(msg, color) {
         if (uploadStatus) {
             uploadStatus.textContent = msg;
             uploadStatus.style.color = color;
         }
     }
+
 });

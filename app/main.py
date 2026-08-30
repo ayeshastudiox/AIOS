@@ -15,12 +15,14 @@ logger = logging.getLogger("AIOS_Backend")
 # Import service functions from team modules
 from app.services.analytics import parse_sales_csv
 from app.services.ai_service import generate_insights_from_metrics
+from app.routes import email_routes
 
 app = FastAPI(
     title="AIOS API",
     description="AI Business Operating System Backend",
     version="1.0.0"
 )
+app.include_router(email_routes.router)
 
 app.add_middleware(
     CORSMiddleware,
