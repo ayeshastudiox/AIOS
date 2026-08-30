@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIOS — Business Operating System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo-area">
+                <i class="fa-solid fa-atom logo-icon"></i>
+                <h2>AIOS</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active"><i class="fa-solid fa-chart-pie"></i> Executive Dashboard</a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-brain"></i> AI Insights Engine</a>
+                <a href="#" class="nav-item"><i class="fa-solid fa-file-csv"></i> Data Management</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Header Top Bar -->
+            <header class="top-bar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" placeholder="Search operational metrics...">
+                </div>
+                <div class="user-profile">
+                    <span class="status-indicator"></span>
+                    <span class="user-name">Live Backend Active</span>
+                </div>
+            </header>
+
+            <!-- Dashboard Content Grid -->
+            <div class="dashboard-grid">
+                
+                <!-- Upload Section (Control Panel) -->
+                <div class="card upload-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-cloud-arrow-up"></i> Data Upload Terminal</h3>
+                    </div>
+                    <div class="upload-dropzone" id="dropzone">
+                        <i class="fa-solid fa-file-csv upload-icon"></i>
+                        <p>Drag and drop your sales CSV here, or <label for="csvFileInput" class="file-label">browse file</label></p>
+                        <input type="file" id="csvFileInput" accept=".csv" hidden>
+                        <span id="selectedFileName">No file selected</span>
+                    </div>
+                    <button id="uploadBtn" class="btn-primary">
+                        <i class="fa-solid fa-rocket"></i> Upload & Process Pipeline
+                    </button>
+                    <div id="uploadStatus" class="status-msg"></div>
+                </div>
+
+                <!-- Executive Summary Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Revenue</div>
+                        <div class="kpi-value" id="kpiRevenue">$0.00</div>
+                        <div class="kpi-trend positive"><i class="fa-solid fa-arrow-trend-up"></i> Live CSV Sync</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Units Sold</div>
+                        <div class="kpi-value" id="kpiUnits">0</div>
+                        <div class="kpi-trend positive"><i class="fa-solid fa-box"></i> Inventory Moved</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Transactions</div>
+                        <div class="kpi-value" id="kpiTransactions">0</div>
+                        <div class="kpi-trend neutral"><i class="fa-solid fa-receipt"></i> Orders Processed</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Avg Order Value</div>
+                        <div class="kpi-value" id="kpiAOV">$0.00</div>
+                        <div class="kpi-trend positive"><i class="fa-solid fa-chart-line"></i> Efficiency</div>
+                    </div>
+                </div>
+
+                <!-- AI Insights Panel -->
+                <div class="card ai-card">
+                    <div class="card-header">
+                        <h3><i class="fa-solid fa-brain"></i> Groq AI Strategic Analysis</h3>
+                        <button id="generateAiBtn" class="btn-secondary" disabled>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Generate AI Insights
+                        </button>
+                    </div>
+                    <div id="aiOutput" class="ai-output-box">
+                        <p class="placeholder-text">Upload a sales CSV and click "Generate AI Insights" to trigger Groq LLM analytics.</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
