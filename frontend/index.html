@@ -27,6 +27,7 @@
                     <a href="#" class="nav-item" data-view="analyticsView"><i class="fa-solid fa-chart-pie"></i><span>Analytics Engine</span></a>
                     <a href="#" class="nav-item" data-view="insightsView"><i class="fa-solid fa-brain"></i><span>AI Insights</span></a>
                     <a href="#" class="nav-item" data-view="emailWriterView"><i class="fa-solid fa-envelope"></i><span>AI Email Writer</span></a>
+                    <a href="#" class="nav-item" data-view="meetingSummaryView"><i class="fa-solid fa-users"></i><span>Meeting Summaries</span></a>
                     <div class="nav-section-title">SYSTEM CONTROL</div>
                     <a href="#" class="nav-item" data-view="reportsView"><i class="fa-solid fa-file-invoice-dollar"></i><span>Reports & Export</span></a>
                 </nav>
@@ -292,9 +293,60 @@
         </div>
     </div>
 </div>
+<!-- VIEW 6: MEETING SUMMARIES -->
+<div class="view-panel" id="meetingSummaryView">
+    <div class="panel">
+        <div class="panel-header">
+            <div class="panel-title">
+                <i class="fa-solid fa-users panel-icon"></i>
+                Meeting Summaries
+            </div>
+            <span class="tag-badge">GROQ AI</span>
+        </div>
 
+        <div style="padding: 20px;">
+            <div style="display: flex; flex-direction: column; gap: 16px; max-width: 700px;">
 
-<!-- VIEW 6: REPORTS & EXPORT -->
+                <div>
+                    <label for="meetingTranscript"
+                        style="display: block; margin-bottom: 6px; font-size: 12px; color: var(--text-muted);">
+                        Meeting Transcript
+                    </label>
+
+                    <textarea
+                        id="meetingTranscript"
+                        rows="10"
+                        placeholder="Paste your meeting transcript here..."
+                        style="width: 100%; padding: 12px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); resize: vertical;"
+                    ></textarea>
+                </div>
+
+                <button
+                    class="btn-cyan-outline"
+                    id="generateMeetingSummaryBtn"
+                    type="button"
+                >
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Generate Summary
+                </button>
+
+                <div
+                    id="meetingSummaryOutput"
+                    class="ai-console-box"
+                    style="min-height: 300px;"
+                >
+                    <div class="ai-placeholder">
+                        <i class="fa-solid fa-users placeholder-icon"></i>
+                        <p>Your meeting summary will appear here.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- VIEW 7: REPORTS & EXPORT -->
 <div class="view-panel" id="reportsView">
     <div class="panel">
         <div class="panel-header">
